@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inquiry Form | MGM Builders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+      background: #fff;
+      color: #2d2d2d;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 40px;
+      background: #fff;
+    }
+
+    .logo-wrap img {
+      height: 66px;
+      display: block;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #555;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 400;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    nav a:hover { color: #111; }
+
+    .btn-contact {
+      background: #2e3c4b;
+      color: #fff !important;
+      padding: 11px 20px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      transition: background 0.2s;
+    }
+
+    .btn-contact:hover { background: #1c2935 !important; }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      padding: 80px 20px 140px;
+    }
+
+    .form-container {
+      max-width: 435px;
+      margin: 0 auto;
+      min-height: 480px;
+      /* Form fields will be placed here */
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #1d2c3b;
+      color: #fff;
+      text-align: center;
+      padding: 70px 40px 50px;
+    }
+
+    footer h2 {
+      font-size: 17px;
+      letter-spacing: 3.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .footer-btn {
+      display: inline-block;
+      border: 1px solid #6a9db8;
+      color: #6a9db8;
+      text-decoration: none;
+      padding: 13px 28px;
+      font-size: 10.5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      margin-bottom: 30px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .footer-btn:hover {
+      background: #6a9db8;
+      color: #fff;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 46px;
+    }
+
+    .social-icons a {
+      color: #fff;
+      font-size: 16px;
+      text-decoration: none;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+
+    .social-icons a:hover { opacity: 1; }
+
+    .footer-address {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #7a8e9e;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-wrap">
+      <img
+        src="https://images.squarespace-cdn.com/content/v1/57cc6f8c414fb5cb6287a055/1515183506610-XQNB8DDP1ZLHF22XBBJ7/Website+Logo+2018.png?format=300w"
+        alt="MGM Builders"
+      >
+    </div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Services</a>
+      <a href="#">Projects</a>
+      <a href="#">Blog</a>
+      <a href="#">About</a>
+      <a href="#" class="btn-contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="form-container">
+      <!-- Form fields will go here -->
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <h2>Ready to Build Your Dream Home?</h2>
+    <a href="#" class="footer-btn">Send Us an Inquiry &rarr;</a>
+    <div class="social-icons">
+      <a href="#" aria-label="Houzz"><i class="fa-brands fa-houzz"></i></a>
+      <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+    </div>
+    <p class="footer-address">MGM Builders, 8 Turning Leaf Drive, Windham, ME, 04062 &nbsp;&nbsp; (207) 892-1019</p>
+  </footer>
+
+</body>
+</html>
