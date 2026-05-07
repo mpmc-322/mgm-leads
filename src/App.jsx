@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useFormState } from './hooks/useFormState'
 import { getStepSequence } from './utils/stepSequence'
 import Header from './components/Header'
@@ -64,45 +64,54 @@ export default function App() {
   const { formData, updateFormData, resetFormData, hasSavedSession, savedStep, saveStep } =
     useFormState()
 
-  const [currentStepId, setCurrentStepId] = useState(
-    hasSavedSession ? savedStep : 'welcome'
-  )
-  const [direction, setDirection]   = useState('forward')
+  const startStep = hasSavedSession ? savedStep : 'welcome'
+  const [currentStepId, setCurrentStepId] = useState(startStep)
+  const [displayStepId, setDisplayStepId] = useState(startStep)
+  const [transDir,   setTransDir]   = useState('forward')
+  const [transPhase, setTransPhase] = useState('idle')
   const [showResume, setShowResume] = useState(hasSavedSession)
+  const timerRef = useRef(null)
+
+  const goToStep = useCallback((nextId, dir, updates) => {
+    const merged = updates ? { ...formData, ...updates } : formData
+    if (updates) updateFormData(updates)
+    saveStep(nextId)
+    setCurrentStepId(nextId)
+    setTransDir(dir)
+
+    clearTimeout(timerRef.current)
+    setTransPhase('exiting')
+    timerRef.current = setTimeout(() => {
+      setDisplayStepId(nextId)
+      setTransPhase('entering')
+      timerRef.current = setTimeout(() => setTransPhase('idle'), 260)
+    }, 160)
+
+    return merged
+  }, [formData, updateFormData, saveStep])
 
   const handleNext = useCallback((updates) => {
     const merged = updates ? { ...formData, ...updates } : formData
-    if (updates) updateFormData(updates)
-
-    const steps = getStepSequence(merged)
-    const idx   = steps.indexOf(currentStepId)
-    const next  = steps[idx + 1]
-    if (next) {
-      setDirection('forward')
-      setCurrentStepId(next)
-      saveStep(next)
-    }
-  }, [formData, currentStepId, updateFormData, saveStep])
+    const steps  = getStepSequence(merged)
+    const next   = steps[steps.indexOf(currentStepId) + 1]
+    if (next) goToStep(next, 'forward', updates)
+  }, [formData, currentStepId, goToStep])
 
   const handleBack = useCallback(() => {
     const steps = getStepSequence(formData)
-    const idx   = steps.indexOf(currentStepId)
-    const prev  = steps[idx - 1]
-    if (prev) {
-      setDirection('back')
-      setCurrentStepId(prev)
-      saveStep(prev)
-    }
-  }, [formData, currentStepId, saveStep])
+    const prev  = steps[steps.indexOf(currentStepId) - 1]
+    if (prev) goToStep(prev, 'back', null)
+  }, [formData, currentStepId, goToStep])
 
   const handleResume    = () => setShowResume(false)
   const handleStartOver = () => {
     resetFormData()
     setShowResume(false)
     setCurrentStepId('welcome')
+    setDisplayStepId('welcome')
   }
 
-  const StepComponent = STEP_COMPONENTS[currentStepId] || Step0Welcome
+  const StepComponent = STEP_COMPONENTS[displayStepId] || Step0Welcome
 
   const steps          = getStepSequence(formData)
   const countable      = steps.filter(s => s !== 'welcome' && s !== 'confirm')
@@ -111,7 +120,7 @@ export default function App() {
   const progressCurrent = countableIndex + 1
   const progressTotal   = countable.length
 
-  const isFirstStep = currentStepId === 'welcome'
+  const isFirstStep = displayStepId === 'welcome'
 
   return (
     <div className="app">
@@ -119,14 +128,11 @@ export default function App() {
         <ResumeModal onResume={handleResume} onStartOver={handleStartOver} />
       )}
       <Header />
-      {showProgress && (
-        <ProgressBar current={progressCurrent} total={progressTotal} />
-      )}
       <main className="main" aria-live="polite">
-        <div
-          key={currentStepId}
-          className={`step-container ${direction === 'forward' ? 'slide-forward' : 'slide-back'}`}
-        >
+        {showProgress && (
+          <ProgressBar current={progressCurrent} total={progressTotal} />
+        )}
+        <div className={`step-container phase-${transPhase} dir-${transDir}`}>
           <StepComponent
             formData={formData}
             onNext={handleNext}

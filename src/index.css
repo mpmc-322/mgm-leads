@@ -85,26 +85,31 @@ input, textarea, select { font-family: var(--font); }
 
 /* ── PROGRESS BAR ── */
 .progress-wrap {
-  background: var(--bg-white);
-  border-bottom: 1px solid #eee;
+  background: transparent;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
   flex-shrink: 0;
 }
 
 .progress-bar-track {
   height: 3px;
-  background: #E5E7EB;
+  background: #E0DDD7;
+  border-radius: 2px;
 }
 
 .progress-bar-fill {
   height: 3px;
   background: var(--slate-blue);
+  border-radius: 2px;
   transition: width 0.4s ease;
 }
 
 .progress-meta {
   display: flex;
   justify-content: flex-end;
-  padding: 6px 40px 8px;
+  padding: 6px 0 0;
 }
 
 .progress-meta span {
@@ -121,13 +126,14 @@ input, textarea, select { font-family: var(--font); }
   flex-direction: column;
   background: var(--bg);
   overflow: hidden;
+  padding-top: 32px;
 }
 
 .step-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 52px 24px 48px;
+  padding: 36px 24px 48px;
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
@@ -135,18 +141,15 @@ input, textarea, select { font-family: var(--font); }
 }
 
 /* ── STEP TRANSITIONS ── */
-@keyframes slideInForward {
-  from { transform: translateX(36px); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
-}
+@keyframes exitLeft  { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(-18px); opacity: 0; } }
+@keyframes exitRight { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(18px);  opacity: 0; } }
+@keyframes enterRight{ from { transform: translateX(18px); opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
+@keyframes enterLeft { from { transform: translateX(-18px);opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
 
-@keyframes slideInBack {
-  from { transform: translateX(-36px); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
-}
-
-.slide-forward { animation: slideInForward 0.3s ease-out both; }
-.slide-back    { animation: slideInBack    0.3s ease-out both; }
+.phase-exiting.dir-forward  { animation: exitLeft   0.16s ease-in  both; }
+.phase-exiting.dir-back     { animation: exitRight  0.16s ease-in  both; }
+.phase-entering.dir-forward { animation: enterRight 0.26s ease-out both; }
+.phase-entering.dir-back    { animation: enterLeft  0.26s ease-out both; }
 
 /* ── STEP COMMON LAYOUT ── */
 .step-heading {
@@ -802,6 +805,14 @@ input, textarea, select { font-family: var(--font); }
 }
 
 .btn-start-over:hover { border-color: var(--navy); }
+
+/* ── CHAR HINT ── */
+.char-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-align: right;
+}
 
 /* ── RECAPTCHA NOTE ── */
 .recaptcha-note {

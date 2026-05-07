@@ -2,17 +2,23 @@ import { useState } from 'react'
 import TextArea from '../ui/TextArea'
 import NavButtons from '../ui/NavButtons'
 
+const MIN = 20
+
 export default function Step2Vision({ formData, onNext, onBack }) {
-  const [value, setValue]   = useState(formData.vision || '')
-  const [error, setError]   = useState('')
+  const [value, setValue] = useState(formData.vision || '')
+  const [error, setError] = useState('')
+
+  const trimmed   = value.trim()
+  const remaining = Math.max(0, MIN - trimmed.length)
+  const ready     = trimmed.length >= MIN
 
   const handleNext = () => {
-    if (value.trim().length < 20) {
+    if (!ready) {
       setError('A bit more detail will really help us — anything else you can share?')
       return
     }
     setError('')
-    onNext({ vision: value.trim() })
+    onNext({ vision: trimmed })
   }
 
   return (
@@ -28,12 +34,17 @@ export default function Step2Vision({ formData, onNext, onBack }) {
           id="vision"
           placeholder="We're a family of four hoping to build a farmhouse-style home on a wooded lot we've been eyeing in Falmouth..."
           value={value}
-          onChange={setValue}
+          onChange={(v) => { setValue(v); if (error) setError('') }}
           error={error}
           autoFocus
         />
+        {!ready && (
+          <p className="char-hint">
+            {remaining} more character{remaining !== 1 ? 's' : ''} to continue
+          </p>
+        )}
       </div>
-      <NavButtons onNext={handleNext} onBack={onBack} />
+      <NavButtons onNext={handleNext} onBack={onBack} nextDisabled={!ready} />
     </>
   )
 }
