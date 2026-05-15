@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import NavButtons from '../ui/NavButtons'
 
 const ALL_TOWNS = [
@@ -10,8 +10,11 @@ const ALL_TOWNS = [
 ].sort()
 
 export default function Step4aLooking({ formData, onNext, onBack }) {
-  const [selected, setSelected] = useState(formData.areas_of_interest || [])
-  const [query, setQuery]       = useState('')
+  const [selected,   setSelected]   = useState(formData.areas_of_interest || [])
+  const [query,      setQuery]      = useState('')
+  const [otherOpen,  setOtherOpen]  = useState(false)
+  const [otherValue, setOtherValue] = useState('')
+  const otherRef = useRef(null)
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -19,19 +22,26 @@ export default function Step4aLooking({ formData, onNext, onBack }) {
     return ALL_TOWNS.filter(t => t.toLowerCase().includes(q))
   }, [query])
 
-  const customLabel = query.trim()
-  const queryIsAddable =
-    customLabel &&
-    !ALL_TOWNS.some(t => t.toLowerCase() === customLabel.toLowerCase()) &&
-    !selected.map(s => s.toLowerCase()).includes(customLabel.toLowerCase())
-
   const toggle = (town) =>
     setSelected(prev => prev.includes(town) ? prev.filter(t => t !== town) : [...prev, town])
 
-  const addCustom = () => {
-    if (!customLabel) return
-    setSelected(prev => [...prev, customLabel])
-    setQuery('')
+  const openOther = () => {
+    setOtherOpen(true)
+    setTimeout(() => otherRef.current?.focus(), 0)
+  }
+
+  const addOther = () => {
+    const val = otherValue.trim()
+    if (!val || selected.map(s => s.toLowerCase()).includes(val.toLowerCase())) {
+      setOtherValue('')
+      return
+    }
+    setSelected(prev => [...prev, val])
+    setOtherValue('')
+  }
+
+  const handleOtherKey = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addOther() }
   }
 
   return (
@@ -88,15 +98,37 @@ export default function Step4aLooking({ formData, onNext, onBack }) {
               {town}
             </button>
           ))}
-
-          {filtered.length === 0 && !queryIsAddable && (
+          {filtered.length === 0 && (
             <p className="town-list-empty">No towns match "{query}"</p>
           )}
+        </div>
 
-          {queryIsAddable && (
-            <button type="button" className="town-list-add" onClick={addCustom}>
-              + Add "{customLabel}"
+        <div className="town-other">
+          {!otherOpen ? (
+            <button type="button" className="town-other-trigger" onClick={openOther}>
+              Don't see your town? Add it
             </button>
+          ) : (
+            <div className="town-other-input-row">
+              <input
+                ref={otherRef}
+                type="text"
+                className="text-input town-other-input"
+                placeholder="e.g. Damariscotta, mid-coast area…"
+                value={otherValue}
+                onChange={e => setOtherValue(e.target.value)}
+                onKeyDown={handleOtherKey}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                className="town-other-add"
+                onClick={addOther}
+                disabled={!otherValue.trim()}
+              >
+                Add
+              </button>
+            </div>
           )}
         </div>
       </div>

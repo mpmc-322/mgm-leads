@@ -397,22 +397,59 @@ input, textarea, select { font-family: var(--font); }
   font-style: italic;
 }
 
-.town-list-add {
-  display: block;
-  width: 100%;
-  padding: 11px 14px;
+.town-other {
+  margin-top: 10px;
+}
+
+.town-other-trigger {
   background: none;
   border: none;
-  border-top: 1px solid #F0EDE8;
-  font-size: 14px;
   font-family: var(--font);
-  color: var(--slate-blue);
-  text-align: left;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--transition);
+}
+
+.town-other-trigger:hover { color: var(--navy); }
+
+.town-other-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.town-other-input {
+  flex: 1;
+  height: 44px;
+  font-size: 14px;
+}
+
+.town-other-add {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 18px;
+  background: var(--slate-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: background var(--transition);
 }
 
-.town-list-add:hover { background: #F7F6F3; }
+.town-other-add:hover:not(:disabled) { background: #3d6f93; }
+
+.town-other-add:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 
 /* ── TEXT INPUTS ── */
 .field-group { margin-bottom: 20px; }
