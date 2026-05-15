@@ -7,8 +7,7 @@ export default function Step0Welcome({ onNext }) {
         We'll get back to you within 2 business days.<br />Takes about 2 minutes.
       </p>
       <p className="welcome-body">
-        We've been building and designing custom homes across Southern Maine
-        since 1987. We're looking forward to hearing about yours.
+        Every MGM home starts with a conversation. We're glad you reached out.
       </p>
       <button className="btn-begin" onClick={() => onNext()}>
         Let's begin →

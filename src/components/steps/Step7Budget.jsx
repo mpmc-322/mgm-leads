@@ -3,11 +3,11 @@ import OptionCard from '../ui/OptionCard'
 import NavButtons from '../ui/NavButtons'
 
 const NEW_BUILD_OPTIONS = [
-  { value: '500k-750k',  label: '$500k–$750k',  desc: 'Modest custom home, ~1,800–2,400 sq ft, standard finishes' },
-  { value: '750k-1m',    label: '$750k–$1M',    desc: 'Mid-size custom home, ~2,400–3,200 sq ft, upgraded finishes in key areas' },
-  { value: '1m-1.5m',   label: '$1M–$1.5M',    desc: 'Larger custom home or premium finishes throughout, ~3,000–4,000 sq ft' },
-  { value: '1.5m-2m',   label: '$1.5M–$2M',    desc: 'High-end custom build, premium materials, complex sites or designs' },
-  { value: '2m+',        label: '$2M+',          desc: 'Estate-level home, fully custom throughout' },
+  { value: '600k-750k',  label: '$600k–$750k',  desc: '~1,500–1,800 sq ft, entry-level custom finishes' },
+  { value: '750k-1m',    label: '$750k–$1M',    desc: '~1,800–2,600 sq ft, mid-tier custom finishes' },
+  { value: '1m-1.5m',   label: '$1M–$1.5M',    desc: '~2,400–3,200 sq ft, nicer finishes with room to prioritize what matters most' },
+  { value: '1.5m-2m',   label: '$1.5M–$2M',    desc: '~3,200–4,000 sq ft, premium materials and more complex design' },
+  { value: '2m+',        label: '$2M+',          desc: 'Estate-level, fully custom' },
   { value: 'not_sure',   label: 'Not sure yet',  desc: 'We can help you figure this out' },
 ]
 
@@ -42,7 +42,8 @@ export default function Step7Budget({ formData, onNext, onBack }) {
       <h2 className="step-heading">What's your budget range?</h2>
       <p className="step-subhead">
         Real talk — here's roughly what each range delivers in today's Maine market.
-        This helps us prepare the right conversation.
+        This helps us prepare the right conversation. Many projects land somewhere in
+        between — we're happy to help you figure out exactly where yours fits.
       </p>
       <div className="step-content">
         {options.map((opt, i) => (
