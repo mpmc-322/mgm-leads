@@ -129,26 +129,20 @@ input, textarea, select { font-family: var(--font); }
   padding-top: 32px;
 }
 
-/* ── EMBED: fixed-height frame with one internal scroll region ── */
-html, body.embedded, body.embedded .app { height: 100%; }
-body.embedded { min-height: 0; }
+/* ── EMBED: flush to content; host page is the only scrollbar ── */
+/* Don't force full-viewport height — document is exactly as tall as content. */
+body.embedded,
+body.embedded .app { min-height: 0; }
 
 body.embedded .main {
-  flex: 1;
-  min-height: 0;        /* allow flex child to shrink so it can scroll */
-  overflow-y: auto;     /* the single scroll region */
-  padding-top: 16px;
+  overflow: visible;
+  padding-top: 12px;
 }
 
-/* Pin nav buttons to the bottom of the scroll viewport */
-body.embedded .nav-buttons {
-  position: sticky;
-  bottom: 0;
-  background: var(--bg);
-  margin-top: 24px;
-  padding: 14px 0 10px;
-  box-shadow: 0 -10px 16px -10px rgba(14, 27, 44, 0.12);
-}
+/* Compact: shrink each step to its content so nav buttons sit directly
+   beneath it instead of being pushed down by the stretch. */
+body.embedded .step-container { flex: 0 0 auto; min-height: 0; }
+body.embedded .step-content  { flex: 0 0 auto; }
 
 .step-container {
   flex: 1;
