@@ -61,6 +61,8 @@ function ResumeModal({ onResume, onStartOver }) {
 }
 
 export default function App() {
+  const isEmbedded = new URLSearchParams(window.location.search).has('embed')
+
   const { formData, updateFormData, resetFormData, hasSavedSession, savedStep, saveStep } =
     useFormState()
 
@@ -127,7 +129,7 @@ export default function App() {
       {showResume && (
         <ResumeModal onResume={handleResume} onStartOver={handleStartOver} />
       )}
-      <Header />
+      {!isEmbedded && <Header />}
       <main className="main" aria-live="polite">
         {showProgress && (
           <ProgressBar current={progressCurrent} total={progressTotal} />
@@ -141,7 +143,7 @@ export default function App() {
           />
         </div>
       </main>
-      <Footer />
+      {!isEmbedded && <Footer />}
     </div>
   )
 }
