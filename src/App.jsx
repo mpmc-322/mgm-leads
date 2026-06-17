@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useFormState } from './hooks/useFormState'
 import { getStepSequence } from './utils/stepSequence'
 import Header from './components/Header'
@@ -62,6 +62,21 @@ function ResumeModal({ onResume, onStartOver }) {
 
 export default function App() {
   const isEmbedded = new URLSearchParams(window.location.search).has('embed')
+
+  useEffect(() => {
+    if (isEmbedded) document.body.classList.add('embedded')
+    return () => document.body.classList.remove('embedded')
+  }, [isEmbedded])
+
+  useEffect(() => {
+    if (!isEmbedded) return
+    const report = () =>
+      window.parent.postMessage({ type: 'mgm-resize', height: document.documentElement.scrollHeight }, '*')
+    report()
+    const observer = new ResizeObserver(report)
+    observer.observe(document.documentElement)
+    return () => observer.disconnect()
+  }, [isEmbedded])
 
   const { formData, updateFormData, resetFormData, hasSavedSession, savedStep, saveStep } =
     useFormState()
