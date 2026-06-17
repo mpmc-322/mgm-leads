@@ -68,16 +68,6 @@ export default function App() {
     return () => document.body.classList.remove('embedded')
   }, [isEmbedded])
 
-  useEffect(() => {
-    if (!isEmbedded) return
-    const report = () =>
-      window.parent.postMessage({ type: 'mgm-resize', height: document.documentElement.scrollHeight }, '*')
-    report()
-    const observer = new ResizeObserver(report)
-    observer.observe(document.documentElement)
-    return () => observer.disconnect()
-  }, [isEmbedded])
-
   const { formData, updateFormData, resetFormData, hasSavedSession, savedStep, saveStep } =
     useFormState()
 
@@ -145,10 +135,10 @@ export default function App() {
         <ResumeModal onResume={handleResume} onStartOver={handleStartOver} />
       )}
       {!isEmbedded && <Header />}
+      {showProgress && (
+        <ProgressBar current={progressCurrent} total={progressTotal} />
+      )}
       <main className="main" aria-live="polite">
-        {showProgress && (
-          <ProgressBar current={progressCurrent} total={progressTotal} />
-        )}
         <div className={`step-container phase-${transPhase} dir-${transDir}`}>
           <StepComponent
             formData={formData}
