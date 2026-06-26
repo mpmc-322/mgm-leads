@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import TextInput from '../ui/TextInput'
 import NavButtons from '../ui/NavButtons'
+import { submitLead } from '../../utils/submitLead'
+import { sendNotificationEmail } from '../../utils/sendNotificationEmail'
 
 function formatPhone(raw) {
   const digits = raw.replace(/\D/g, '').slice(0, 10)
@@ -31,12 +33,24 @@ export default function Step10Contact({ formData, onNext, onBack }) {
     if (phone.replace(/\D/g, '').length !== 10) errs.phone = 'We need a phone number we can reach you at.'
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
-    onNext({
+
+    const contact = {
       first_name: first.trim(),
       last_name:  last.trim(),
       email:      email.trim().toLowerCase(),
       phone:      formatPhone(phone),
-    })
+    }
+
+    // Fire-and-forget to HubSpot AND the team notification email. The parent
+    // formData doesn't yet hold these contact fields, and Step11Confirm clears
+    // localStorage on mount, so we send the merged lead here, before advancing.
+    // Neither is awaited — the user proceeds to the confirmation screen
+    // immediately regardless of the HubSpot or email response.
+    const fullLead = { ...formData, ...contact }
+    submitLead(fullLead)
+    sendNotificationEmail(fullLead)
+
+    onNext(contact)
   }
 
   return (
