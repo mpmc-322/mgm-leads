@@ -216,6 +216,22 @@ body.embedded .step-content  { flex: 0 0 auto; }
   border-color: var(--slate-blue);
 }
 
+/* Referral: 2-column compact grid — keeps this (the tallest) step short enough
+   to fit the embedded fixed-height iframe without internal scroll. */
+.referral-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.referral-grid .option-card {
+  margin-bottom: 0;          /* grid gap handles spacing, not card margin */
+  min-height: 52px;          /* down from 56px */
+  padding: 12px 14px;        /* tighter than the default 15px 18px */
+}
+@media (max-width: 520px) {
+  .referral-grid { grid-template-columns: 1fr; }  /* stack on phones */
+}
+
 .option-card.selected {
   border-color: var(--slate-blue);
   background: rgba(74, 127, 165, 0.07);

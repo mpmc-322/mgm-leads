@@ -21,14 +21,16 @@ export default function Step9Referral({ formData, onNext, onBack }) {
     <>
       <h2 className="step-heading">How did you hear about us?</h2>
       <div className="step-content" style={{ marginTop: 32 }}>
-        {OPTIONS.map(opt => (
-          <OptionCard
-            key={opt.value}
-            label={opt.label}
-            selected={selected === opt.value}
-            onClick={() => setSelected(opt.value)}
-          />
-        ))}
+        <div className="referral-grid">
+          {OPTIONS.map(opt => (
+            <OptionCard
+              key={opt.value}
+              label={opt.label}
+              selected={selected === opt.value}
+              onClick={() => setSelected(opt.value)}
+            />
+          ))}
+        </div>
       </div>
       <NavButtons
         onNext={() => onNext({ referral_source: selected })}
