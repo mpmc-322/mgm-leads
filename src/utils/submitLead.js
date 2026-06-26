@@ -110,11 +110,17 @@ export async function submitLead(lead) {
     },
   }
 
+  // Bound the wait: the notification email is sent after this resolves and reports
+  // its status, so a hung request must not delay the email indefinitely.
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+
   try {
     const res = await fetch(SUBMIT_URL(HUBSPOT_PORTAL_ID, HUBSPOT_FORM_GUID), {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
+      signal:  controller.signal,
     })
     if (!res.ok) {
       const body = await res.text().catch(() => '')
@@ -123,8 +129,15 @@ export async function submitLead(lead) {
     }
     return { ok: true }
   } catch (err) {
-    // Network error, ad-blocker, etc. — never surface to the user.
+    if (err.name === 'AbortError') {
+      console.error('[submitLead] submission timed out')
+      return { ok: false, reason: 'timeout' }
+    }
+    // Network error, ad-blocker (ERR_BLOCKED_BY_CLIENT), offline, etc. — never
+    // surface to the user, but the notification email will flag it.
     console.error('[submitLead] submission failed', err)
     return { ok: false, reason: 'network_error' }
+  } finally {
+    clearTimeout(timeout)
   }
 }

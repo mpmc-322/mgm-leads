@@ -24,7 +24,23 @@ const SLATE  = '#4A7FA5'
 const PANEL  = '#F7F6F3'
 const BORDER = '#E0DDD7'
 const MUTED  = '#6B7280'
+const GREEN  = '#1E7F4F'
+const GREEN_BG = '#ECF7F0'
+const RED    = '#B91C1C'
+const RED_BG = '#FDECEC'
 const FONT   = "'Montserrat','Helvetica Neue',Arial,sans-serif"
+
+// Human-readable hint for why the HubSpot submission didn't land, from the
+// submitLead() result. Helps us diagnose; the action for the client is the same.
+function hubspotFailHint(hubspot) {
+  switch (hubspot && hubspot.reason) {
+    case 'network_error': return "the visitor's browser blocked the request (ad/tracker blocker)"
+    case 'http_error':    return `HubSpot rejected it (HTTP ${hubspot.status || '?'})`
+    case 'timeout':       return 'the request timed out'
+    case 'not_configured':return 'HubSpot is not configured in the form'
+    default:              return 'reason unknown'
+  }
+}
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 function esc(str) {
@@ -61,7 +77,10 @@ function section(title, rowsHtml) {
 }
 
 // ─── main ────────────────────────────────────────────────────────────────────
-export function buildNotificationEmail(lead) {
+// `hubspot` is submitLead()'s result ({ ok, reason, status? }); undefined is
+// treated as "not delivered" so the team is never falsely told a lead synced.
+export function buildNotificationEmail(lead, hubspot) {
+  const hubspotOk = hubspot && hubspot.ok === true
   const isReno = lead.project_type === 'renovation'
 
   // Address is collected under per-branch keys — normalize like submitLead.js.
@@ -88,7 +107,25 @@ export function buildNotificationEmail(lead) {
   if (fullName)      subjectParts.push(fullName)
   if (projectLabel)  subjectParts.push(projectLabel)
   if (town)          subjectParts.push(town)
-  const subject = subjectParts.join(' · ')
+  // Flag failures up front so they're scannable in the inbox list.
+  const subject = (hubspotOk ? '' : '⚠ ADD TO HUBSPOT — ') + subjectParts.join(' · ')
+
+  // ── HubSpot delivery status banner ──
+  const statusBanner = hubspotOk
+    ? `
+    <tr><td style="padding:18px 28px 0 28px;">
+      <div style="background:${GREEN_BG};border:1px solid ${GREEN};border-radius:6px;padding:10px 16px;font-family:${FONT};font-size:13px;font-weight:600;color:${GREEN};">
+        ✓ Delivered to HubSpot → Buildertrend
+      </div>
+    </td></tr>`
+    : `
+    <tr><td style="padding:18px 28px 0 28px;">
+      <div style="background:${RED_BG};border:1px solid ${RED};border-radius:6px;padding:14px 16px;font-family:${FONT};">
+        <div style="font-size:15px;font-weight:700;color:${RED};">⚠ This lead did NOT reach HubSpot</div>
+        <div style="margin-top:6px;font-size:13px;line-height:1.5;color:${NAVY};">Add it to HubSpot manually — it will <strong>not</strong> appear in Buildertrend on its own. All of the lead's details are below.</div>
+        <div style="margin-top:6px;font-size:11px;color:${MUTED};">(${esc(hubspotFailHint(hubspot))})</div>
+      </div>
+    </td></tr>`
 
   // ── contact card ──
   const contactCard = `
@@ -167,6 +204,7 @@ export function buildNotificationEmail(lead) {
           <div style="margin-top:10px;font-family:${FONT};font-size:12px;color:${MUTED};">${esc(submittedAt)}</div>
         </td></tr>
 
+        ${statusBanner}
         ${contactCard}
         ${projectSection}
         ${locationSection}

@@ -24,8 +24,10 @@ const EMAILJS_PUBLIC_KEY  = 'Ilofl3yG697Z9E1I3' // safe to ship; restrict to you
 const NOTIFY_TO = 'michaelconnery22@gmail.com' // TEST recipient — swap to the real MGM team before client go-live
 
 // ─── Send ──────────────────────────────────────────────────────────────────
-export async function sendNotificationEmail(lead) {
-  const { subject, html } = buildNotificationEmail(lead)
+// `hubspot` is the result object from submitLead() ({ ok, reason, status? }), used
+// to stamp the email with whether the lead also reached HubSpot. May be undefined.
+export async function sendNotificationEmail(lead, hubspot) {
+  const { subject, html } = buildNotificationEmail(lead, hubspot)
 
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
     // Not configured yet — log the rendered email so you can verify the design.

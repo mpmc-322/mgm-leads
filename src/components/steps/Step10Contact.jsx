@@ -41,14 +41,17 @@ export default function Step10Contact({ formData, onNext, onBack }) {
       phone:      formatPhone(phone),
     }
 
-    // Fire-and-forget to HubSpot AND the team notification email. The parent
-    // formData doesn't yet hold these contact fields, and Step11Confirm clears
-    // localStorage on mount, so we send the merged lead here, before advancing.
-    // Neither is awaited — the user proceeds to the confirmation screen
-    // immediately regardless of the HubSpot or email response.
+    // Submit to HubSpot, then email the team WITH the HubSpot delivery status so
+    // they know if a lead came in but didn't reach HubSpot (e.g. blocked by an
+    // ad-blocker). The parent formData doesn't yet hold these contact fields, and
+    // Step11Confirm clears localStorage on mount, so we send the merged lead here.
+    // Not awaited — the user proceeds to the confirmation screen immediately; the
+    // chain resolves in the background. submitLead catches internally and never
+    // throws, so .catch is just defensive.
     const fullLead = { ...formData, ...contact }
     submitLead(fullLead)
-    sendNotificationEmail(fullLead)
+      .then(result => sendNotificationEmail(fullLead, result))
+      .catch(() => sendNotificationEmail(fullLead, { ok: false, reason: 'unknown' }))
 
     onNext(contact)
   }
