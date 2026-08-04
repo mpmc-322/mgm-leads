@@ -11,6 +11,7 @@ const initialFormData = {
   land_status:       null,
   location_town:     '',
   location_street:   '',
+  location_zip:      '',
   location_tax_map:  '',
   areas_of_interest: [],
   square_footage:    null,

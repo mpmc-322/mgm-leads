@@ -11,11 +11,15 @@
 // confirmation screen.
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-// Fill these in after creating the form in HubSpot (HUBSPOT-SETUP.md, step 2).
-// Until both are set, submitLead() is a no-op that logs instead of POSTing, so
-// local dev and previews don't error.
-const HUBSPOT_PORTAL_ID = '245866255'
-const HUBSPOT_FORM_GUID = '52c2b948-4f56-4372-9b64-738681d98f52'
+// Fill these in after creating the form in the new MGM HubSpot account
+// (HUBSPOT-SETUP.md, step 2). Until BOTH are set, submitLead() is a no-op that
+// logs the mapped payload instead of POSTing, so local dev and previews don't error.
+//
+// New MGM HubSpot account (data region na2). The default api.hsforms.com submit
+// host routes to na2 portals correctly (verified), so no regional host override
+// is needed.
+const HUBSPOT_PORTAL_ID = '246955946'
+const HUBSPOT_FORM_GUID = '27e723ad-de00-4251-8f15-68e9b90a3572'
 
 const SUBMIT_URL = (portalId, formGuid) =>
   `https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formGuid}`
@@ -53,21 +57,31 @@ function buildProjectDetails(lead) {
 
 // ─── Field mapping ───────────────────────────────────────────────────────────
 // Flattens the form's branch-specific fields (new-build vs. renovation) into a
-// single set of HubSpot contact properties. Designed for HubSpot's free tier:
-// everything maps to a DEFAULT property or to one of just 7 custom properties
-// (see HUBSPOT-SETUP.md). The right-hand strings here MUST match the property
-// internal names in HubSpot.
+// single set of HubSpot contact properties. The right-hand strings here MUST
+// match the property internal names in HubSpot, and every field sent must exist
+// on the HubSpot form or the Forms API rejects the whole submission.
+//
+// SEND_CUSTOM_PROPERTIES gates the qualification data (project type, budget,
+// timeline, etc.). It's OFF: HubSpot is only a relay that creates the contact so
+// Buildertrend's native sync makes a Lead Opportunity — and that sync carries only
+// identity fields (it strips custom properties anyway). The full lead detail lives
+// in the notification email, which is the durable record. Flip this to `true` (and
+// create the 7 custom properties + add them to the form, per HUBSPOT-SETUP.md) if
+// you later want the structured data in HubSpot for segmentation. No other change
+// needed — the mapping below is ready.
+const SEND_CUSTOM_PROPERTIES = false
+
 function buildFields(lead) {
   // Address is collected under different keys per branch — normalize to one set
   // and map to HubSpot's default address properties (no custom slot needed).
   const street = lead.location_street || lead.reno_street || ''
   const town   = lead.location_town   || lead.reno_town   || ''
-  const zip    = lead.reno_zip || ''
+  const zip    = lead.reno_zip || lead.location_zip || ''
 
   // [internalName, value] pairs. Empty values are dropped before sending so we
   // don't overwrite existing contact data with blanks on a repeat submission.
   const pairs = [
-    // Default HubSpot contact properties (do not count toward the 10-custom cap)
+    // Default HubSpot contact properties — always exist, no setup needed
     ['firstname',      lead.first_name],
     ['lastname',       lead.last_name],
     ['email',          lead.email],
@@ -79,14 +93,16 @@ function buildFields(lead) {
     ['message',        lead.vision],     // the customer's free-text vision
     ['hs_lead_status', 'NEW'],           // the field Buildertrend's sync triggers on
 
-    // Custom properties — 7 total (create these in HubSpot)
-    ['project_type',    lead.project_type],
-    ['land_status',     lead.land_status],
-    ['plans_status',    lead.plans_status],
-    ['budget_range',    lead.budget_range],
-    ['timeline',        lead.timeline],
-    ['referral_source', lead.referral_source],
-    ['project_details', buildProjectDetails(lead)],
+    // Custom properties — only sent when SEND_CUSTOM_PROPERTIES is on (see above)
+    ...(SEND_CUSTOM_PROPERTIES ? [
+      ['project_type',    lead.project_type],
+      ['land_status',     lead.land_status],
+      ['plans_status',    lead.plans_status],
+      ['budget_range',    lead.budget_range],
+      ['timeline',        lead.timeline],
+      ['referral_source', lead.referral_source],
+      ['project_details', buildProjectDetails(lead)],
+    ] : []),
   ]
 
   return pairs

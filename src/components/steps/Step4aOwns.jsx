@@ -5,6 +5,7 @@ import NavButtons from '../ui/NavButtons'
 export default function Step4aOwns({ formData, onNext, onBack }) {
   const [town,   setTown]   = useState(formData.location_town   || '')
   const [street, setStreet] = useState(formData.location_street || '')
+  const [zip,    setZip]    = useState(formData.location_zip    || '')
   const [taxMap, setTaxMap] = useState(formData.location_tax_map|| '')
   const [error,  setError]  = useState('')
 
@@ -14,7 +15,7 @@ export default function Step4aOwns({ formData, onNext, onBack }) {
       return
     }
     setError('')
-    onNext({ location_town: town.trim(), location_street: street.trim(), location_tax_map: taxMap.trim() })
+    onNext({ location_town: town.trim(), location_street: street.trim(), location_zip: zip.trim(), location_tax_map: taxMap.trim() })
   }
 
   return (
@@ -36,6 +37,14 @@ export default function Step4aOwns({ formData, onNext, onBack }) {
           placeholder="e.g. 42 Ledge Road"
           value={street}
           onChange={setStreet}
+        />
+        <TextInput
+          label="ZIP code"
+          optional
+          placeholder="04101"
+          value={zip}
+          onChange={(v) => setZip(v.slice(0, 5))}
+          type="number"
         />
         <TextInput
           label="Tax map / lot number"

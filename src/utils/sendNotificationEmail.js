@@ -7,7 +7,8 @@
 // (buildNotificationEmail.js) and hand EmailJS the finished HTML, so the design
 // lives in this repo, not in EmailJS's template editor.
 //
-// This runs in addition to submitLead() (HubSpot stays the system of record).
+// This runs in addition to submitLead() (HubSpot is the system of record; its
+// native Buildertrend sync turns the contact into a Lead Opportunity).
 // Fire-and-forget: a mail hiccup must never block the user's confirmation screen.
 
 import emailjs from '@emailjs/browser'
@@ -21,11 +22,11 @@ import { buildNotificationEmail } from './buildNotificationEmail'
 const EMAILJS_SERVICE_ID  = 'service_yxzd7ov'
 const EMAILJS_TEMPLATE_ID = 'template_ukg9gym'
 const EMAILJS_PUBLIC_KEY  = 'Ilofl3yG697Z9E1I3' // safe to ship; restrict to your domain in EmailJS
-const NOTIFY_TO = 'michaelconnery22@gmail.com' // TEST recipient — swap to the real MGM team before client go-live
+const NOTIFY_TO = 'mike@midcoastoperations.com' // TEST recipient (Mike) — swap to the real MGM team inbox before client go-live
 
 // ─── Send ──────────────────────────────────────────────────────────────────
 // `hubspot` is the result object from submitLead() ({ ok, reason, status? }), used
-// to stamp the email with whether the lead also reached HubSpot. May be undefined.
+// to stamp the email with whether the lead reached HubSpot. May be undefined.
 export async function sendNotificationEmail(lead, hubspot) {
   const { subject, html } = buildNotificationEmail(lead, hubspot)
 

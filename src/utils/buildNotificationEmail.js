@@ -86,7 +86,7 @@ export function buildNotificationEmail(lead, hubspot) {
   // Address is collected under per-branch keys — normalize like submitLead.js.
   const street = lead.location_street || lead.reno_street || ''
   const town   = lead.location_town   || lead.reno_town   || ''
-  const zip    = lead.reno_zip || ''
+  const zip    = lead.reno_zip || lead.location_zip || ''
 
   const fullName = [lead.first_name, lead.last_name].filter(Boolean).join(' ').trim()
   const projectLabel = labelFor(PROJECT_TYPE, lead.project_type)
