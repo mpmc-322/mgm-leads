@@ -1,0 +1,61 @@
+name: Buildertrend lead sync
+
+# Runs on-demand: the form's Vercel function fires a repository_dispatch when a lead
+# arrives. workflow_dispatch lets you also trigger it by hand from the Actions tab.
+on:
+  repository_dispatch:
+    types: [new-lead]
+  workflow_dispatch:
+
+concurrency:
+  # Never run two syncs at once — they'd race on the same BT session.
+  group: bt-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bt-sync
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm ci || npm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Restore saved BT session
+        run: printf '%s' "$STORAGE_STATE" > storageState.json
+        env:
+          STORAGE_STATE: ${{ secrets.STORAGE_STATE }}
+
+      - name: Run sync
+        env:
+          # The lead to push, from the dispatch payload. Empty on a manual
+          # workflow_dispatch — the run then no-ops with a clear parse error.
+          BT_LEAD_JSON:        ${{ toJSON(github.event.client_payload.lead) }}
+          BT_BASE_URL:         ${{ secrets.BT_BASE_URL }}
+          BT_NEW_LEAD_PATH:    ${{ secrets.BT_NEW_LEAD_PATH }}
+          DEFAULT_SALESPERSON: ${{ secrets.DEFAULT_SALESPERSON }}
+          ALERT_SLACK_WEBHOOK: ${{ secrets.ALERT_SLACK_WEBHOOK }}
+          ALERT_EMAIL_TO:      ${{ secrets.ALERT_EMAIL_TO }}
+          EMAILJS_SERVICE_ID:  ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_TEMPLATE_ID: ${{ secrets.EMAILJS_TEMPLATE_ID }}
+          EMAILJS_PUBLIC_KEY:  ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}
+        run: node src/index.js
+
+      - name: Save screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts
+          path: bt-sync/*.png
+          if-no-files-found: ignore

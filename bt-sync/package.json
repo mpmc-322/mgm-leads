@@ -1,0 +1,15 @@
+{
+  "name": "bt-sync",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "On-demand sync: pushes a HubSpot lead into Buildertrend by filling the internal New Lead Opportunity form with Playwright.",
+  "scripts": {
+    "login": "node src/login.js",
+    "run": "node src/index.js",
+    "dry-run": "DRY_RUN=1 node src/index.js"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
