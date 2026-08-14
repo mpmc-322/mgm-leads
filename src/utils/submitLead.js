@@ -112,6 +112,26 @@ function buildFields(lead) {
     .map(([name, value]) => ({ name, value: String(value) }))
 }
 
+// ─── Page URI ────────────────────────────────────────────────────────────────
+// HubSpot spam-filters submissions whose pageUri domain isn't one of the account's
+// registered site domains ("Unregistered Site Domain") — it still returns 200, then
+// silently quarantines the lead instead of creating a contact. In the Squarespace
+// embed we run inside an iframe, so window.location.href is the Vercel app URL,
+// which trips exactly that filter.
+//
+// document.referrer holds the embedding page's URL and IS readable cross-origin
+// (window.parent.location is not). Note the default referrer policy trims it to the
+// origin, so we report https://mgmbuilders.com/ rather than the full path — enough
+// for the domain check. Only trust it when actually framed: on the standalone form
+// the referrer would be whatever site linked here.
+//
+// If a strict referrer policy ever blanks it, we fall back to our own URL — so keep
+// the Vercel domain registered in HubSpot too.
+function pageUri() {
+  const framed = window.self !== window.top
+  return (framed && document.referrer) || window.location.href
+}
+
 // ─── Submit ──────────────────────────────────────────────────────────────────
 export async function submitLead(lead) {
   if (!HUBSPOT_PORTAL_ID || !HUBSPOT_FORM_GUID) {
@@ -123,7 +143,7 @@ export async function submitLead(lead) {
   const payload = {
     fields: buildFields(lead),
     context: {
-      pageUri:  window.location.href,
+      pageUri:  pageUri(),
       pageName: document.title,
     },
   }
