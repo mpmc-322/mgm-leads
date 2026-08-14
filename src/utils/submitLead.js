@@ -62,14 +62,16 @@ function buildProjectDetails(lead) {
 // on the HubSpot form or the Forms API rejects the whole submission.
 //
 // SEND_CUSTOM_PROPERTIES gates the qualification data (project type, budget,
-// timeline, etc.). It's OFF: HubSpot is only a relay that creates the contact so
-// Buildertrend's native sync makes a Lead Opportunity — and that sync carries only
-// identity fields (it strips custom properties anyway). The full lead detail lives
-// in the notification email, which is the durable record. Flip this to `true` (and
-// create the 7 custom properties + add them to the form, per HUBSPOT-SETUP.md) if
-// you later want the structured data in HubSpot for segmentation. No other change
-// needed — the mapping below is ready.
-const SEND_CUSTOM_PROPERTIES = false
+// timeline, etc.). It's ON: the 7 custom properties exist in HubSpot and are on the
+// form, verified live 2026-08-14 by submitting all 17 fields and reading them back
+// off the resulting contact. Buildertrend's native sync still strips them (it carries
+// only identity fields), so this is purely for HubSpot-side segmentation — the
+// notification email remains the durable record of a lead's full detail.
+//
+// ⚠️ The Forms API returns 200 even for fields that AREN'T on the form; it drops them
+// silently. So if you add a mapping below, verify it by reading the contact record —
+// a successful response proves nothing.
+const SEND_CUSTOM_PROPERTIES = true
 
 function buildFields(lead) {
   // Address is collected under different keys per branch — normalize to one set
